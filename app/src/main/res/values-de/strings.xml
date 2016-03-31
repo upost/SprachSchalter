@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SprachSchalter</string>
+    <string-array name="keywords_on"><item>an</item><item>licht</item><item>anschalten</item></string-array>
+    <string-array name="keywords_off"><item>aus</item><item>dunkel</item><item>ausschalten</item></string-array>
+
+</resources>
