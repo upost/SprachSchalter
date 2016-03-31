@@ -2,10 +2,12 @@ package de.spas.sprachschalter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -16,6 +18,7 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     private static final String LOG_TAG = "MainActivity";
     private SpeechRecognizer speech;
     private Intent recognizerIntent;
+    private Handler h =new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +62,17 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
     @Override
     public void onEndOfSpeech() {
         Log.d(LOG_TAG, "Endofspeech");
+        continueListening();
+    }
 
+    private void continueListening() {
+
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                speech.startListening(recognizerIntent);
+            }
+        },2000);
     }
 
     @Override
@@ -67,18 +80,25 @@ public class MainActivity extends AppCompatActivity implements RecognitionListen
         String errorMessage = getErrorText(errorCode);
         Log.d(LOG_TAG, "FAILED " + errorMessage);
 
+        if(errorCode==SpeechRecognizer.ERROR_SPEECH_TIMEOUT
+            ) {
+            continueListening();
+        }
+
     }
 
     @Override
     public void onResults(Bundle bundle) {
         recognizeKeyword(bundle);
-        speech.startListening(recognizerIntent);
+
     }
 
     private void recognizeKeyword(Bundle bundle) {
         ArrayList<String> matches = bundle.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
         String[] keywordsOn = getResources().getStringArray(R.array.keywords_on);
         String[] keywordsOff = getResources().getStringArray(R.array.keywords_off);
+
+        Log.d(LOG_TAG, "matches: " + TextUtils.join(",",matches));
 
         for(String s : keywordsOn) {
             if(matches.contains(s)) {
